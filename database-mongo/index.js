@@ -1,31 +1,39 @@
-var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/test');
+var mongoose = require("mongoose");
+mongoose.connect("mongodb://localhost/anime");
 
 var db = mongoose.connection;
 
-db.on('error', function() {
-  console.log('mongoose connection error');
+db.on("error", function() {
+  console.log("mongoose connection error");
 });
 
-db.once('open', function() {
-  console.log('mongoose connected successfully');
+db.once("open", function() {
+  console.log("mongoose connected successfully");
 });
 
-var itemSchema = mongoose.Schema({
-  quantity: Number,
-  description: String
+var userSchema = mongoose.Schema({
+  userName: String,
+  password: String,
+  watchLater: Array
 });
 
-var Item = mongoose.model('Item', itemSchema);
+var User = mongoose.model("User", userSchema);
 
-var selectAll = function(callback) {
-  Item.find({}, function(err, items) {
-    if(err) {
-      callback(err, null);
-    } else {
-      callback(null, items);
-    }
-  });
+const save = (user, callback) => {
+  User.create(user, callback);
 };
+const findUser = (userName, callback) => {
+  User.find({ userName: userName }, callback);
+};
+// var selectAll = function(callback) {
+//   Item.find({}, function(err, items) {
+//     if (err) {
+//       callback(err, null);
+//     } else {
+//       callback(null, items);
+//     }
+//   });
+// };
 
-module.exports.selectAll = selectAll;
+module.exports.save = save;
+module.exports.findUser = findUser;
