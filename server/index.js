@@ -2,6 +2,7 @@ var express = require("express");
 var data = require("../database-mongo");
 const bcrypt = require("bcryptjs");
 const path = require("path");
+const axios = require("axios");
 const app = express();
 
 app.use(express.json());
@@ -9,16 +10,20 @@ app.use(express.urlencoded());
 
 app.use(express.static(__dirname + "/../react-client/dist"));
 
-app.post("/signUppppp", (req, res) => {
+app.post("/signUp", (req, res) => {
   var salt = bcrypt.genSaltSync(10);
   var hash = bcrypt.hashSync(req.body.password, salt);
-  var user = { userName: req.body.userName, password: hash, watchLater: [] };
+  var user = {
+    userName: req.body.userName,
+    password: hash,
+    watchLater: []
+  };
   data.save(user, error => {
     if (error) throw error;
     res.sendStatus(201);
   });
 });
-app.post("/logInnnnnn", (req, res) => {
+app.post("/logIn", (req, res) => {
   data.findUser(req.body.userName, (err, doc) => {
     if (err) throw err;
     if (!doc.length) {
@@ -38,12 +43,25 @@ app.post("/logInnnnnn", (req, res) => {
     }
   });
 });
-
+app.post("/watchLater", (req, res) => {
+  data.findUser(req.body.userName, (err, doc) => {
+    if (!doc.length) {
+      console.log("not found in the data base");
+      res.sendStatus(404);
+    } else {
+      res.send(doc[0]._doc.watchLater);
+    }
+  });
+});
 app.post("/add", (req, res) => {
   data.findUser(req.body.userName, (err, doc) => {
     if (err) throw err;
-    doc[0]._doc.watchLater.push(req.body.animeId);
-    doc[0]._doc.save();
+    axios
+      .get(`https://https://api.jikan.moe/v3/anime/${res.body.animeId}`)
+      .then(res => {
+        doc[0]._doc.watchLater = doc[0]._doc.watchLater.concat(res);
+        doc[0].save().then(res => console.log("hi"));
+      });
   });
 });
 

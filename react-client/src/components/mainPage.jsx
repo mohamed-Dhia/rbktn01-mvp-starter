@@ -6,6 +6,7 @@ class MainPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      view: 1,
       searchTerm: "",
       animeList: []
     };
@@ -26,6 +27,11 @@ class MainPage extends React.Component {
     axios
       .post("/add", { userName: "donatelosss", animeId: id })
       .then(res => console.log("hey"));
+  }
+  switchToWatchList() {
+    axios.post("/watchLater", { userName: "donatelosss" }).then(res => {
+      console.log(res.data);
+    });
   }
   render() {
     const animes = this.state.animeList.map((anime, index) => {
@@ -55,7 +61,9 @@ class MainPage extends React.Component {
             value={this.state.searchTerm}
             onChange={this.handleChange.bind(this)}
           />
-          <div id="watchLaterList">watch later list</div>
+          <div id="watchLaterList" onClick={this.switchToWatchList.bind(this)}>
+            watch later list
+          </div>
         </div>
         <button onClick={this.searchAnAnime.bind(this)}>search</button>
         <div id="animes">{animes}</div>
